@@ -1,0 +1,8 @@
+{
+  "name": "advent-of-code",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "deno run --allow-read --allow-write --allow-hrtime main.ts",
+    "watch": "deno run --watch --allow-read --allow-write --allow-hrtime main.ts"
+  }
+}
