@@ -4,7 +4,7 @@ export default (input: string): string => {
   const path: string[] = [];
   const tree: Directory = { name: '/', size: 0, contents: [] };
 
-  let sum = 0;
+  let smallestDirectorySize = Infinity;
 
   for (const command of commands) {
     if (command.startsWith('cd')) {
@@ -25,13 +25,30 @@ export default (input: string): string => {
       }
     }
 
-    if (size < 100_000) sum += size;
+    return size;
+  }
+  const minSizeToDelete = calculateSize(tree) - 40_000_000;
+
+  function findDirectoryToDelete(directory: Directory) {
+    let size = 0;
+
+    for (const fileOrDirectory of directory.contents) {
+      if (fileOrDirectory.size === 0) {
+        size += findDirectoryToDelete(fileOrDirectory as Directory);
+      } else {
+        size += fileOrDirectory.size;
+      }
+    }
+
+    if (size > minSizeToDelete && size < smallestDirectorySize) {
+      smallestDirectorySize = size;
+    }
 
     return size;
   }
-  calculateSize(tree);
+  findDirectoryToDelete(tree);
 
-  return sum.toString();
+  return smallestDirectorySize.toString();
 };
 
 function cd(currentPath: string[], newPath: string) {
