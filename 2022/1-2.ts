@@ -1,5 +1,5 @@
-export default (input: string): string => {
-  const calories = [];
+export default function main(input: string): string {
+  const calories: number[] = [];
 
   for (const elf of input.split('\n\n')) {
     let totalCalories = 0;
@@ -14,4 +14,4 @@ export default (input: string): string => {
   calories.sort((a, b) => b - a);
 
   return (calories[0] + calories[1] + calories[2]).toString();
-};
+}

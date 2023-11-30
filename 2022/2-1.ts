@@ -1,16 +1,11 @@
-export default (input: string): string => {
-  // prettier-ignore
-  const SCORE_TABLE: { [key: string]: number } = {
-    A: 1, X: 1, // rock
-    B: 2, Y: 2, // paper
-    C: 3, Z: 3, // scissors
-  };
-
+export default function main(input: string): string {
   let points = 0;
 
   for (const round of input.split('\n')) {
-    const [theirShape, ourShape] = round.split(' ');
-    const [theirScore, ourScore] = [SCORE_TABLE[theirShape], SCORE_TABLE[ourShape]];
+    const shapes = round.split(' ');
+
+    const theirScore = shapes[0].charCodeAt(0) - 64;
+    const ourScore = shapes[1].charCodeAt(0) - 87;
 
     if (ourScore === theirScore) {
       points += 3; // draw
@@ -22,4 +17,4 @@ export default (input: string): string => {
   }
 
   return points.toString();
-};
+}

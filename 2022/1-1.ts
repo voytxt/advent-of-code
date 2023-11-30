@@ -1,4 +1,4 @@
-export default (input: string): string => {
+export default function main(input: string): string {
   let maxCalories = 0;
 
   for (const elf of input.split('\n\n')) {
@@ -12,4 +12,4 @@ export default (input: string): string => {
   }
 
   return maxCalories.toString();
-};
+}

@@ -1,0 +1,13 @@
+{
+  "tasks": {
+    "run": "deno run --allow-read --allow-hrtime src/main.ts",
+    "watch": "deno run --watch --allow-read --allow-hrtime src/main.ts",
+    "bench": "deno bench --allow-read src/bench.ts --"
+  },
+
+  "fmt": {
+    "options": {
+      "singleQuote": true
+    }
+  }
+}
