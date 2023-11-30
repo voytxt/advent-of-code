@@ -4,14 +4,9 @@ export async function load(year: string, day: string): Promise<Problem> {
     Deno.exit();
   }
 
-  try {
-    const problem = await import(`../${year}/${day}.ts`);
+  const problem = await import(`../${year}/${day}.ts`);
 
-    return { run: problem.default };
-  } catch {
-    console.error(`%cFile ${year}/${day}.ts not found`, 'color: red');
-    Deno.exit();
-  }
+  return { run: problem.default };
 }
 
 type Problem = { run: (input: string) => number };

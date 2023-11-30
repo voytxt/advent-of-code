@@ -1,18 +1,21 @@
-export default (input: string): string => {
-  const PRIORITIES = '_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+export default function main(input: string): string {
+  const priorities = '_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
-  let prioritiesSum = 0;
+  let sum = 0;
 
   for (const rucksack of input.split('\n')) {
-    const [half1, half2] = [rucksack.slice(0, rucksack.length / 2), rucksack.slice(rucksack.length / 2)];
+    const [a, b] = [
+      rucksack.slice(0, rucksack.length / 2),
+      rucksack.slice(rucksack.length / 2),
+    ];
 
-    for (const item of half1) {
-      if (half2.includes(item)) {
-        prioritiesSum += PRIORITIES.indexOf(item);
+    for (const item of a) {
+      if (b.includes(item)) {
+        sum += priorities.indexOf(item);
         break;
       }
     }
   }
 
-  return prioritiesSum.toString();
-};
+  return sum.toString();
+}
