@@ -12,8 +12,11 @@ export default function main(input: string): string {
     for (let j = 0; j < line.length; j++) {
       const char = line[j];
 
-      if (char.match(/\d/)) {
-        currentNum += char.toString();
+      const isCharANumber = /\d/.test(char);
+      const isCharAtTheEndOfTheLine = j === line.length - 1;
+
+      if (isCharANumber) {
+        currentNum += char;
 
         if (
           [
@@ -25,21 +28,17 @@ export default function main(input: string): string {
             lines[i - 1]?.[j + 1],
             lines[i - 1]?.[j],
             lines[i - 1]?.[j - 1],
-          ].some((e) => e !== undefined && e !== '.' && !e.match(/\d/))
+          ].some((e) => e !== undefined && e !== '.' && !/\d/.test(e))
         ) {
           isPart = true;
         }
-      } else {
-        if (isPart) {
-          sum += +currentNum;
-        }
+      }
+
+      if (!isCharANumber || isCharAtTheEndOfTheLine) {
+        if (isPart) sum += +currentNum;
 
         currentNum = '';
         isPart = false;
-      }
-
-      if (j === line.length - 1 && isPart) {
-        sum += +currentNum;
       }
     }
   }
