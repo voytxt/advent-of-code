@@ -1,44 +1,110 @@
-// tackle this one another time
+// start is inclusive, end is exclusive
+type Range = { start: number; end: number };
+type Map = Range & { offset: number };
 
 export default function main(input: string): string {
-  const rawValues = input
+  let ranges = parseSeeds(input);
+  const almanac = parseAlmanac(input);
+
+  for (const maps of almanac) {
+    const newRanges: Range[] = [];
+
+    for (const range of ranges) {
+      newRanges.push(...applyMapsToRange(range, maps));
+    }
+
+    ranges = newRanges;
+  }
+
+  return Math.min(...ranges.map((r) => r.start)).toString();
+}
+
+function parseSeeds(input: string) {
+  const rawSeeds = input
     .split('\n')[0]
     .split(' ')
     .slice(1)
     .map((e) => +e);
 
-  let ranges: [number, number][] = [];
+  const seeds: Range[] = [];
 
-  for (let i = 0; i < rawValues.length; i += 2) {
-    ranges.push([rawValues[i], rawValues[i] + rawValues[i + 1]]);
+  for (let i = 0; i < rawSeeds.length; i += 2) {
+    seeds.push({
+      start: rawSeeds[i],
+      end: rawSeeds[i] + rawSeeds[i + 1],
+    });
   }
+
+  return seeds;
+}
+
+function parseAlmanac(input: string) {
+  const almanac: Map[][] = [];
 
   for (const block of input.split('\n\n').slice(1)) {
-    const newRanges: [number, number][] = [];
+    const lines = block.split('\n').slice(1);
 
-    ranges.forEach((r) => {
-      for (const line of block.split('\n').slice(1)) {
-        const [bStart, aStart, range] = line.split(' ').map((e) => +e);
-        const a = [aStart, aStart + range];
+    const maps: Map[] = [];
 
-        const offset = bStart - aStart;
+    for (const line of lines) {
+      const [bStart, aStart, length] = line.split(' ').map((e) => +e);
 
-        if (r[0] >= a[0] && r[1] <= a[1]) newRanges.push([r[0] + offset, r[1] + offset]);
-        else if (r[0] < a[0] && r[1] > a[1]) {
-          newRanges.push([r[0] + offset, r[1] + offset]);
-        }
+      maps.push({
+        start: aStart,
+        end: aStart + length,
+        offset: bStart - aStart,
+      });
+    }
 
-        // if (r >= aStart && r < aEnd) return r + offset;
-      }
-
-      newRanges.push(r);
-    });
-
-    ranges = newRanges;
+    almanac.push(maps);
   }
 
-  return ranges
-    .map((e) => e[0])
-    .toSorted((a, b) => a - b)[0]
-    .toString();
+  return almanac;
+}
+
+function applyMapsToRange(range: Range | null, maps: Map[]) {
+  const newRanges: Range[] = [];
+
+  for (const map of maps.toSorted((a, b) => a.start - b.start)) {
+    const { before, intersection, after } = splitRange(range!, map);
+
+    if (before !== null) {
+      newRanges.push(before);
+    }
+
+    if (intersection !== null) {
+      newRanges.push({
+        start: intersection.start + map.offset,
+        end: intersection.end + map.offset,
+      });
+    }
+
+    range = after;
+
+    if (range === null) {
+      break;
+    }
+  }
+
+  if (range !== null) {
+    newRanges.push(range);
+  }
+
+  return newRanges;
+}
+
+//        range:  x-------------x
+//          map:      x-----x
+//       before:  x---x
+// intersection:      x-----x
+//        after:            x---x
+function splitRange(r: Range, m: Map): { before: Range | null; intersection: Range | null; after: Range | null } {
+  if (r.end <= m.start) return { before: r, intersection: null, after: null };
+  if (r.start >= m.end) return { before: null, intersection: null, after: r };
+
+  return {
+    before: r.start < m.start ? { start: r.start, end: m.start } : null,
+    intersection: { start: Math.max(r.start, m.start), end: Math.min(r.end, m.end) },
+    after: r.end > m.end ? { start: m.end, end: r.end } : null,
+  };
 }
