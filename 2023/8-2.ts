@@ -1,30 +1,24 @@
-// doesn't work (the solution number is too big)
-
 export default function main(input: string): string {
-  let steps = 0;
-
   const { moves, network } = parseInput(input);
 
-  const currentLocations = Object.keys(network).filter((loc) => loc.endsWith('A'));
+  const startingLocations = Object.keys(network).filter((loc) => loc.endsWith('A'));
+  const stepsToEachLocation: number[] = [];
 
-  for (const currentLocation of currentLocations) {
-    let cycle = 0;
+  for (let i = 0; i < startingLocations.length; i++) {
+    let steps = 0;
+    let currentLocation = startingLocations[i];
+
     while (!currentLocation.endsWith('Z')) {
       for (const move of moves) {
-        for (let i = 0; i < currentLocations.length; i++) {
-          currentLocations[i] = network[currentLocations[i]][move];
-          i++;
-        }
-
+        currentLocation = network[currentLocation][move];
         steps++;
-        if (steps % 10_000_000 === 0) console.log(steps);
       }
-      cycle++;
     }
-    console.log(currentLocation, cycle);
+
+    stepsToEachLocation.push(steps);
   }
 
-  return steps.toString();
+  return leastCommonMultiple(stepsToEachLocation).toString();
 }
 
 function parseInput(input: string) {
@@ -43,4 +37,18 @@ function parseInput(input: string) {
   }
 
   return { moves, network };
+}
+
+function leastCommonMultiple(nums: number[]): number {
+  //  greatest common divisor  https://en.wikipedia.org/wiki/Euclidean_algorithm
+  const gcd = (a: number, b: number): number => (b ? gcd(b, a % b) : a);
+
+  // least common multiple
+  const lcm = (a: number, b: number): number => (a * b) / gcd(a, b);
+
+  if (nums.length === 2) {
+    return lcm(nums[0], nums[1]);
+  }
+
+  return lcm(nums[0], leastCommonMultiple(nums.slice(1)));
 }
