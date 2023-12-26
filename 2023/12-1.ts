@@ -1,4 +1,4 @@
-type Row = { map: string[]; groups: number[] };
+type Row = { map: string; groups: number[] };
 
 export default function main(input: string): string {
   const rows = parseInput(input);
@@ -6,7 +6,7 @@ export default function main(input: string): string {
   let sum = 0;
 
   for (const row of rows) {
-    sum += countArrangements(row);
+    sum += countArrangements(row.map, row.groups);
   }
 
   return sum.toString();
@@ -19,7 +19,7 @@ function parseInput(input: string): Row[] {
     const [map, groups] = line.split(' ');
 
     rows.push({
-      map: map.split(''),
+      map: map,
       groups: groups.split(',').map((e) => +e),
     });
   }
@@ -27,27 +27,31 @@ function parseInput(input: string): Row[] {
   return rows;
 }
 
-function countArrangements(row: Row, i = 0): number {
-  if (i > row.map.length) {
-    return checkIfValid(row) ? 1 : 0;
+function countArrangements(map: string, groups: number[], i = 0): number {
+  for (; i < map.length; i++) {
+    if (map[i] === '?') {
+      const a = map.slice(0, i);
+      const b = map.slice(i + 1);
+
+      const x = countArrangements(a + '#' + b, groups, i + 1);
+      const y = countArrangements(a + '.' + b, groups, i + 1);
+
+      return x + y;
+    }
   }
 
-  if (row.map[i] === '?') {
-    return (
-      countArrangements({ groups: row.groups, map: row.map.with(i, '#') }, i + 1) +
-      countArrangements({ groups: row.groups, map: row.map.with(i, '.') }, i + 1)
-    );
-  } else {
-    return countArrangements(row, i + 1);
-  }
+  return checkIfValid(map, groups) ? 1 : 0;
 }
 
-function checkIfValid(row: Row): boolean {
-  const groups = row.map
-    .join('')
-    .split('.')
-    .map((group) => group.length)
-    .filter((group) => group !== 0);
+function checkIfValid(map: string, groups: number[]): boolean {
+  let i = 0;
 
-  return groups.length === row.groups.length && groups.every((group, i) => group === row.groups[i]);
+  for (const rawGroup of map.split('.')) {
+    if (rawGroup.length > 0) {
+      if (rawGroup.length !== groups[i]) return false;
+      i++;
+    }
+  }
+
+  return i === groups.length;
 }
