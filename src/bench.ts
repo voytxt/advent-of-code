@@ -1,10 +1,8 @@
-import { load } from './problem.ts';
+import { getInput, getProblem } from './main.ts';
 
-const [year, day] = Deno.args;
-const problem = await load(year, day);
+const input = await getInput();
+const problem = await getProblem();
 
-const input = await Deno.readTextFile('./io/input.txt');
-
-Deno.bench(`Problem ${year}/${day}`, () => {
+Deno.bench(`Problem ${problem.year}/${problem.day}`, () => {
   problem.run(input);
 });

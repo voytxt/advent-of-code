@@ -1,13 +1,20 @@
-import { load } from './problem.ts';
+export async function getInput(): Promise<string> {
+  return await Deno.readTextFile('./io/input.txt');
+}
 
-const [year, day] = Deno.args;
-const problem = await load(year, day);
+export async function getProblem(): Promise<{
+  year: string;
+  day: string;
+  run: (input: string) => number;
+}> {
+  const [year, day] = Deno.args as [string | undefined, string | undefined];
 
-const input = await Deno.readTextFile('./io/input.txt');
+  if (year === undefined || day === undefined) {
+    console.error('%cPlease specify the year and problem', 'color: red');
+    Deno.exit();
+  }
 
-const t0 = performance.now();
-const result = problem.run(input);
-const t1 = performance.now();
+  const problem = await import(`../${year}/${day}.ts`);
 
-console.log(`Result: %c${result}`, 'color: green');
-console.log(`Finished in %c${(t1 - t0).toFixed(2)} ms`, 'color: green');
+  return { year, day, run: problem.default };
+}
